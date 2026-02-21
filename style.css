@@ -23,7 +23,6 @@ body {
     overflow-x: hidden;
 }
 
-/* Shimmer Анимация */
 .shimmer-container {
     position: relative;
     overflow: hidden;

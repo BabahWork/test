@@ -247,7 +247,11 @@ document.getElementById('lightboxDownload').onclick = () => {
 };
 
 document.getElementById('lightboxCopy').onclick = () => {
-    copyLink(currentLightboxImages[currentLightboxIndex]);
+    const currentImgUrl = currentLightboxImages[currentLightboxIndex];
+    const urlParts = currentImgUrl.split('/');
+    const id = urlParts[urlParts.length - 2]; 
+    const siteUrl = `${window.location.origin}${window.location.pathname}?img=${id}`;
+    copyLink(siteUrl);
 };
 
 document.getElementById('lightbox').onclick = (e) => {
