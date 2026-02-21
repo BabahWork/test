@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CloudSnap — Next Gen Photo Hosting</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Дополнительные стили для системы тегов */
+        .tag-input-container {
+            margin-bottom: 1.5rem;
+        }
+        
+        .image-tags-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 12px 16px;
+            color: white;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .image-tags-input:focus {
+            outline: none;
+            border-color: #6366f1;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .history-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 8px;
+        }
+
+        .tag-badge {
+            font-size: 10px;
+            font-weight: 600;
+            background: rgba(99, 102, 241, 0.2);
+            color: #818cf8;
+            padding: 2px 8px;
+            border-radius: 6px;
+            text-transform: lowercase;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+
+        .history-item {
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .history-item:hover {
+            transform: translateY(-5px);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-animation">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <header class="header">
+        <a href="#" class="logo" onclick="location.href=window.location.pathname">
+            <div class="logo-icon">
+                <svg width="20" height="20" fill="white" viewBox="0 0 24 24">
+                    <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/>
+                </svg>
+            </div>
+            CloudSnap
+        </a>
+        <div class="header-actions">
+            <button id="exportBtn" class="header-btn" title="Экспорт истории">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+                </svg>
+            </button>
+            <button id="importBtn" class="header-btn" title="Импорт истории">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                </svg>
+            </button>
+            <input type="file" id="importFileInput" accept=".json" style="display:none;">
+            <button id="themeToggle" class="theme-toggle-btn" aria-label="Сменить тему">
+                <svg class="sun-icon" width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"></path>
+                </svg>
+                <svg class="moon-icon" width="20" height="20" fill="currentColor" viewBox="0 0 24 24" style="display:none;">
+                    <path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <main class="container" id="mainLayout">
+        <section id="uploadSection">
+            <div class="upload-card">
+                <h2 style="margin-bottom: 0.5rem; font-weight: 800;">Загрузка</h2>
+                <p style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 1.5rem;">Поделитесь моментом мгновенно</p>
+                
+                <div class="mode-switch">
+                    <button class="mode-btn active" id="modeSingle">Одиночно</button>
+                    <button class="mode-btn" id="modeAlbum">Альбом</button>
+                </div>
+
+                <input type="text" id="albumTitle" class="album-input" placeholder="Название альбома..." style="display:none; margin-bottom: 1rem;">
+
+                <div class="tag-input-container">
+                    <input type="text" id="imageTags" class="image-tags-input" placeholder="Теги через запятую (работа, личное...)">
+                </div>
+
+                <div class="compression-option">
+                    <label class="compression-label">
+                        <input type="checkbox" id="compressImages" checked>
+                        <span class="checkmark"></span>
+                        <span>Сжимать изображения</span>
+                    </label>
+                    <select id="compressionQuality" class="compression-select">
+                        <option value="0.9">Высокое (90%)</option>
+                        <option value="0.7" selected>Среднее (70%)</option>
+                        <option value="0.5">Низкое (50%)</option>
+                    </select>
+                </div>
+
+                <div class="drop-zone" id="dropZone">
+                    <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="margin-bottom: 1rem; color: var(--accent); opacity: 0.8;">
+                        <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                    </svg>
+                    <p id="dropText" style="font-weight: 700; color: #fff;">Нажмите или перетащите</p>
+                    <p style="color: var(--text-dim); font-size: 0.75rem; margin-top: 4px;">PNG, JPG до 10MB • Ctrl+V для вставки</p>
+                    <input type="file" id="fileInput" accept="image/*" multiple style="display: none;">
+                </div>
+
+                <div id="uploadQueue" style="margin-bottom: 1.5rem;"></div>
+                
+                <div id="uploadProgress" class="upload-progress" style="display:none;">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <span class="progress-text" id="progressText">0%</span>
+                </div>
+                
+                <button class="btn btn-primary" id="uploadBtn" disabled>Выбрать файлы</button>
+            </div>
+        </section>
+
+        <section id="historySection">
+            <div class="history-header">
+                <h2 class="section-title">Ваша галерея</h2>
+                <div class="search-box">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="M21 21l-4.35-4.35"></path>
+                    </svg>
+                    <input type="text" id="searchInput" placeholder="Поиск по названию или тегам...">
+                </div>
+            </div>
+            <div id="historyGrid" class="history-grid"></div>
+        </section>
+    </main>
+
+    <div id="lightbox" class="lightbox">
+        <button class="lightbox-close" id="lightboxClose">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M18 6L6 18M6 6l12 12"/>
+            </svg>
+        </button>
+        <button class="lightbox-nav lightbox-prev" id="lightboxPrev">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M15 18l-6-6 6-6"/>
+            </svg>
+        </button>
+        <button class="lightbox-nav lightbox-next" id="lightboxNext">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M9 18l6-6-6-6"/>
+            </svg>
+        </button>
+        <div class="lightbox-content">
+            <img id="lightboxImg" src="" alt="Preview">
+        </div>
+        <div class="lightbox-actions">
+            <button class="lightbox-btn" id="lightboxDownload">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                </svg>
+                Скачать
+            </button>
+            <button class="lightbox-btn" id="lightboxCopy">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+                </svg>
+                Копировать ссылку
+            </button>
+        </div>
+    </div>
+
+    <div id="shortcutsHelp" class="shortcuts-help">
+        <div class="shortcuts-content">
+            <h3>Горячие клавиши</h3>
+            <div class="shortcut-item"><kbd>Ctrl</kbd> + <kbd>V</kbd> <span>Вставить изображение</span></div>
+            <div class="shortcut-item"><kbd>Esc</kbd> <span>Закрыть просмотр</span></div>
+            <div class="shortcut-item"><kbd>←</kbd> <kbd>→</kbd> <span>Навигация по альбому</span></div>
+            <div class="shortcut-item"><kbd>?</kbd> <span>Показать/скрыть подсказки</span></div>
+            <button class="btn btn-primary" onclick="toggleShortcutsHelp()" style="margin-top: 1rem; width: auto; padding: 0.5rem 1.5rem;">Понятно</button>
+        </div>
+    </div>
+
+    <div id="toast">Успешно!</div>
+
+    <script src="script.js"></script>
+</body>
+</html>
